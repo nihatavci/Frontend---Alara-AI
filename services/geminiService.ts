@@ -1,19 +1,45 @@
-
 import { GoogleGenAI, Modality, Type } from "@google/genai";
 
 // Lazy initialization to prevent crash if process.env is accessed immediately in browser
 let aiClient: GoogleGenAI | null = null;
 
+// Robustly retrieve API key from various environment configurations (Vite, CRA, Next.js, Node)
+const getApiKey = (): string => {
+  // 1. Check for Vite / Modern Browser Environment (import.meta.env)
+  try {
+    // @ts-ignore - import.meta is not standard in all TS configs, ignoring error
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // @ts-ignore
+      const viteKey = import.meta.env.VITE_API_KEY || import.meta.env.API_KEY;
+      if (viteKey) return viteKey;
+    }
+  } catch (e) {
+    // Ignore errors if import.meta is not available
+  }
+
+  // 2. Check for Node.js / CRA / Next.js Environment (process.env)
+  try {
+    if (typeof process !== 'undefined' && process.env) {
+      // Check standard framework prefixes
+      return process.env.REACT_APP_API_KEY || 
+             process.env.NEXT_PUBLIC_API_KEY || 
+             process.env.VITE_API_KEY ||
+             process.env.API_KEY || 
+             '';
+    }
+  } catch (e) {
+    // Ignore ReferenceError if process is not defined in strict browser environments
+  }
+  
+  return '';
+};
+
 const getAI = () => {
   if (!aiClient) {
-    // In a real environment, process.env.API_KEY is injected. 
-    // We add a fallback to avoid runtime crashes if 'process' is undefined during development/preview.
-    const apiKey = (typeof process !== 'undefined' && process.env && process.env.API_KEY) 
-      ? process.env.API_KEY 
-      : '';
+    const apiKey = getApiKey();
       
     if (!apiKey) {
-      console.warn("Alara AI: API Key is missing. AI features will not function.");
+      console.warn("Alara AI: API Key is missing. AI features will not function. Please set VITE_API_KEY, REACT_APP_API_KEY, or API_KEY in your environment.");
     }
     
     aiClient = new GoogleGenAI({ apiKey: apiKey });
@@ -447,7 +473,7 @@ export const generateVeoVideo = async (imageFile: File, prompt: string = "Cinema
     }
 
     // Fetch the video bytes using the API key
-    const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+    const response = await fetch(`${downloadLink}&key=${getApiKey()}`);
     const blob = await response.blob();
     return URL.createObjectURL(blob);
   } catch (error) {
