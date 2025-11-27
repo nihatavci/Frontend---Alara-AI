@@ -1,5 +1,5 @@
 
-export type ViewState = 'onboarding' | 'dashboard';
+export type ViewState = 'auth' | 'onboarding' | 'dashboard';
 export type DashboardTab = string; // e.g., 'daily', 'daily_podcast', 'market_heatmap'
 export type MarketPriority = 'General' | 'Energy' | 'Finance' | 'Innovation' | 'Business' | 'Tech';
 

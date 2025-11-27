@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Database, UserCheck, Users, Shield, Target, Zap, DollarSign, Sparkles, Briefcase, Cpu, Globe, List, Plus, X, Building } from 'lucide-react';
 import Onboarding from './components/Onboarding';
+import Auth from './components/Auth';
 import Sidebar from './components/dashboard/Sidebar';
 import { Header } from './components/dashboard/Header';
 import ExecutiveDaily from './components/dashboard/ExecutiveDaily';
@@ -317,7 +318,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ view, marketPriority, setMa
 };
 
 const App: React.FC = () => {
-  const [viewState, setViewState] = useState<ViewState>('onboarding');
+  const [viewState, setViewState] = useState<ViewState>('auth');
   const [activeTab, setActiveTab] = useState<DashboardTab>('daily');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   
@@ -368,7 +369,9 @@ const App: React.FC = () => {
          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-600/50 to-transparent opacity-50"></div>
       </div>
 
-      {viewState === 'onboarding' ? (
+      {viewState === 'auth' ? (
+        <Auth onLogin={() => setViewState('onboarding')} />
+      ) : viewState === 'onboarding' ? (
         <Onboarding onComplete={() => setViewState('dashboard')} />
       ) : (
         <div className="relative z-10 flex h-screen overflow-hidden">
